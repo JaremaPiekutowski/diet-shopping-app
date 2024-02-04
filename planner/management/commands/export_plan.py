@@ -9,9 +9,7 @@ class Command(BaseCommand):
     help = "Exports plan and shopping list to docx files"
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            "plan_id", type=str, help="ID of the plan to be exported"
-        )
+        parser.add_argument("plan_id", type=str, help="ID of the plan to be exported")
 
     def handle(self, *args, **kwargs):
         plan_id = kwargs["plan_id"]
@@ -30,11 +28,27 @@ class Command(BaseCommand):
                 {
                     "date": planday.day.date,
                     "meals": {
-                        "breakfast": planday.day.breakfast.title if planday.day.breakfast else "No breakfast planned",
-                        "lunch": planday.day.lunch.title if planday.day.lunch else "No lunch planned",
-                        "dinner": planday.day.dinner.title if planday.day.dinner else "No dinner planned",
-                        "supper": planday.day.supper.title if planday.day.supper else "No supper planned",
-                        }
+                        "breakfast": (
+                            planday.day.breakfast.title
+                            if planday.day.breakfast
+                            else "No breakfast planned"
+                        ),
+                        "lunch": (
+                            planday.day.lunch.title
+                            if planday.day.lunch
+                            else "No lunch planned"
+                        ),
+                        "dinner": (
+                            planday.day.dinner.title
+                            if planday.day.dinner
+                            else "No dinner planned"
+                        ),
+                        "supper": (
+                            planday.day.supper.title
+                            if planday.day.supper
+                            else "No supper planned"
+                        ),
+                    },
                 }
                 for planday in plandays
             ],
@@ -42,76 +56,78 @@ class Command(BaseCommand):
         return plan_data
 
     def get_shopping_list_data(self, plan):
-        # Step 1: Create an empty dictionary for the shopping list
         shopping_list = {}
 
-        # Step 2: Create a nested dictionary for each category
         for category, _ in IngredientCategory.choices:
             shopping_list[category] = []
 
-        # Step 3: Get all plandays
         plandays = plan.planday_set.all()
 
-        # Step 4: Loop over plandays
         for planday in plandays:
-            # Step 5: Extract the day from each planday
             day = planday.day
 
-            # Step 6: Get every meal from the day
             meals = [day.breakfast, day.lunch, day.dinner, day.supper]
 
-            # Step 7: Loop over ingredients from each meal
             for meal_recipe in meals:
                 if meal_recipe:
-                    recipe_ingredients = RecipeIngredient.objects.filter(recipe=meal_recipe)
+                    recipe_ingredients = RecipeIngredient.objects.filter(
+                        recipe=meal_recipe
+                    )
                     for ri in recipe_ingredients:
                         ingredient = ri.ingredient
 
-                        # Step 8: Put the ingredient in the shopping list
-                        # Determine the category (default to "Other" if no category is assigned)
                         category = ingredient.category or IngredientCategory.OTHER
 
                         # Check if the ingredient is already in the shopping list
                         existing_ingredient = next(
                             (
                                 item
-                                for item
-                                in shopping_list[category]
-                                if item['name'] == ingredient.name),
-                            None
+                                for item in shopping_list[category]
+                                if item["name"] == ingredient.name
+                            ),
+                            None,
                         )
 
                         if existing_ingredient:
-                            # If the ingredient is already in the list, update its quantities
-                            existing_ingredient['total_grams'] += Decimal(str(ri.quantity_grams))
-                            existing_ingredient['total_price'] += (
-                                (Decimal(str(ri.quantity_grams)) * (ingredient.price_per_hundred_gram / 100))
+                            existing_ingredient["total_grams"] += Decimal(
+                                str(ri.quantity_grams)
                             )
+                            existing_ingredient["total_price"] += Decimal(
+                                str(ri.quantity_grams)
+                            ) * (ingredient.price_per_hundred_gram / 100)
                         else:
-                            # If the ingredient is not in the list, add it
-                            shopping_list[category].append({
-                                'name': ingredient.name,
-                                'total_grams': Decimal(str(ri.quantity_grams)),
-                                'total_price': (
-                                    (Decimal(str(ri.quantity_grams)) * (ingredient.price_per_hundred_gram / 100))
-                                )
-                            })
+                            shopping_list[category].append(
+                                {
+                                    "name": ingredient.name,
+                                    "total_grams": Decimal(str(ri.quantity_grams)),
+                                    "total_price": (
+                                        (
+                                            Decimal(str(ri.quantity_grams))
+                                            * (ingredient.price_per_hundred_gram / 100)
+                                        )
+                                    ),
+                                }
+                            )
         return shopping_list
 
     def export_plan(self, plan):
         plan_data = self.get_plan_data(plan)
         doc = Document()
-        doc.add_heading(f"Diet plan for {plan_data['date_start']} - {plan_data['date_end']}", 0)
+        doc.add_heading(
+            f"Diet plan for {plan_data['date_start']} - {plan_data['date_end']}", 0
+        )
         for day in plan_data["days"]:
             doc.add_heading(day["date"].strftime("%d %B %Y, %A"), level=1)
             for meal, title in day["meals"].items():
                 doc.add_paragraph(f"{meal.capitalize()}: {title}")
-        doc.save(f"exported_data/plan_{plan_data['date_start']}_{plan_data['date_end']}.docx")
+        doc.save(
+            f"exported_data/plan_{plan_data['date_start']}_{plan_data['date_end']}.docx"
+        )
 
     def export_shopping_list(self, plan):
         shopping_list = self.get_shopping_list_data(plan)
         shopping_doc = Document()
-        shopping_doc.add_heading('Lista Zakupów', 0)
+        shopping_doc.add_heading("Lista Zakupów", 0)
 
         for category, ingredients in shopping_list.items():
             shopping_doc.add_heading(category, level=1)
@@ -122,10 +138,12 @@ class Command(BaseCommand):
                         f'{ingredient["total_grams"]} g - '
                         f'Cost: {ingredient["total_price"]:.2f} PLN'
                     ),
-                    style='List Bullet'
-                    )
+                    style="List Bullet",
+                )
 
-        shopping_doc.save(f'exported_data/shopping_{plan.date_start}_{plan.date_end}.docx')
+        shopping_doc.save(
+            f"exported_data/shopping_{plan.date_start}_{plan.date_end}.docx"
+        )
 
     def do_export(self, plan):
         self.export_plan(plan)

@@ -92,9 +92,9 @@ class Command(BaseCommand):
         recipe, created = Recipe.objects.get_or_create(
             title=recipe_data["name"],
             defaults={
-                'meal': self.get_meal(recipe_data["meal_number"]),
-                'cooking_instructions': recipe_data["cooking_instructions"]
-                }
+                "meal": self.get_meal(recipe_data["meal_number"]),
+                "cooking_instructions": recipe_data["cooking_instructions"],
+            },
         )
         if not created:
             # Update meal and cooking_instructions if recipe already exists
@@ -117,9 +117,9 @@ class Command(BaseCommand):
             ingredient, created = Ingredient.objects.get_or_create(
                 name=ingredient_data["name"],
                 defaults={
-                    'calories_per_hundred_gram': calories * (100 / grams),
-                    'other_measurement_unit': nominative_unit
-                    }
+                    "calories_per_hundred_gram": calories * (100 / grams),
+                    "other_measurement_unit": nominative_unit,
+                },
             )
             if not created:
                 # Update existing ingredient
@@ -131,5 +131,5 @@ class Command(BaseCommand):
             RecipeIngredient.objects.get_or_create(
                 recipe=recipe,
                 ingredient=ingredient,
-                defaults={'quantity_grams': ingredient_data["grams"]}
+                defaults={"quantity_grams": ingredient_data["grams"]},
             )

@@ -54,7 +54,8 @@ class Recipe(models.Model):
     @property
     def total_price(self):
         total_price = sum(
-            Decimal(str(ri.quantity_grams)) * (ri.ingredient.price_per_hundred_gram / 100)
+            Decimal(str(ri.quantity_grams))
+            * (ri.ingredient.price_per_hundred_gram / 100)
             for ri in self.recipeingredient_set.all()
             if ri.quantity_grams and ri.ingredient.price_per_hundred_gram
         )
@@ -63,7 +64,8 @@ class Recipe(models.Model):
     @property
     def total_calories(self):
         total_calories = sum(
-            float(str(ri.quantity_grams)) * (ri.ingredient.calories_per_hundred_gram / 100)
+            float(str(ri.quantity_grams))
+            * (ri.ingredient.calories_per_hundred_gram / 100)
             for ri in self.recipeingredient_set.all()
             if ri.quantity_grams and ri.ingredient.calories_per_hundred_gram
         )

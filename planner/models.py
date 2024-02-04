@@ -1,6 +1,7 @@
-'''
+"""
 Model for diet plans
-'''
+"""
+
 from django.db import models
 
 from recipes.models import Recipe
@@ -51,7 +52,7 @@ class Day(models.Model):
             float(meal.total_price)
             for meal in [self.breakfast, self.lunch, self.dinner, self.supper]
             if meal is not None
-            ]
+        ]
         total_price = sum(meal_prices)
         print(total_price)
         return total_price

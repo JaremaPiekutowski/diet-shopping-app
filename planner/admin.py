@@ -40,9 +40,17 @@ class PlanAdmin(admin.ModelAdmin):
     Admin interface for the Plan model
     """
 
-    list_display = ("id", "date_start", "date_end",)
+    list_display = (
+        "id",
+        "date_start",
+        "date_end",
+    )
     inlines = [PlanDayInline]
-    readonly_fields = ("id", "date_start", "date_end",)
+    readonly_fields = (
+        "id",
+        "date_start",
+        "date_end",
+    )
     fieldsets = (
         (
             None,
