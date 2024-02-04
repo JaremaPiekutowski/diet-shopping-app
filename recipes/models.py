@@ -19,6 +19,22 @@ class Meal(models.TextChoices):
     SUPPER = "supper", _("Supper")
 
 
+class IngredientCategory(models.TextChoices):
+    """
+    Categories of ingredients
+    """
+
+    FRUIT = "fruit", _("Fruit")
+    VEGETABLES = "vegetables", _("Vegetables")
+    BREAD = "bread", _("Bread")
+    DAIRY = "dairy", _("Dairy")
+    MEAT = "meat", _("Meat")
+    FISH = "fish", _("Fish")
+    FLOUR = "flour", _("Flour")
+    SPICES = "spices", _("Spices")
+    OTHER = "other", _("Other")
+
+
 class Recipe(models.Model):
     """
     Model for a recipe
@@ -38,16 +54,20 @@ class Recipe(models.Model):
     @property
     def total_price(self):
         total_price = sum(
-            Decimal(str(ri.quantity_grams)) * ri.ingredient.price_per_unit
+            Decimal(str(ri.quantity_grams)) * (ri.ingredient.price_per_hundred_gram / 100)
             for ri in self.recipeingredient_set.all()
-            if ri.quantity_grams and ri.ingredient.price_per_unit
+            if ri.quantity_grams and ri.ingredient.price_per_hundred_gram
         )
-        return f"{total_price:.2f} PLN"
+        return round(total_price, 2)
 
     @property
     def total_calories(self):
-        total_calories = sum(ri.calories for ri in self.recipeingredient_set.all())
-        return f"{round(total_calories)} kcal"
+        total_calories = sum(
+            float(str(ri.quantity_grams)) * (ri.ingredient.calories_per_hundred_gram / 100)
+            for ri in self.recipeingredient_set.all()
+            if ri.quantity_grams and ri.ingredient.calories_per_hundred_gram
+        )
+        return round(total_calories)
 
     def __str__(self):
         return f"{self.title}"
@@ -59,14 +79,22 @@ class Ingredient(models.Model):
     """
 
     name = models.CharField(max_length=100, verbose_name=_("name"))
+    category = models.CharField(
+        max_length=50,
+        choices=IngredientCategory.choices,
+        null=True,
+        blank=True,
+        verbose_name=_("category"),
+    )
     price_per_hundred_gram = models.DecimalField(
         max_digits=5,
         decimal_places=2,
+        null=True,
+        blank=True,
         verbose_name=_("price per 100 gram"),
     )
     calories_per_hundred_gram = models.FloatField(
         verbose_name=_("calories per 100 gram"),
-        default=300,
     )
     other_measurement_unit = models.CharField(
         max_length=50,
@@ -89,7 +117,15 @@ class Ingredient(models.Model):
         )
 
     def __str__(self):
-        return f"{self.name}"
+        if self.other_measurement_unit is not None:
+            other_measurement_unit = self.other_measurement_unit
+        else:
+            other_measurement_unit = ""
+        if self.grams_per_unit is not None:
+            grams_per_unit = self.grams_per_unit
+        else:
+            grams_per_unit = ""
+        return f"{self.name} ({other_measurement_unit}-{grams_per_unit} g)"
 
 
 class RecipeIngredient(models.Model):

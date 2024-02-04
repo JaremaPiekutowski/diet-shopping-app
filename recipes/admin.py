@@ -21,7 +21,7 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ("title",)
     ordering = ("title",)
     inlines = [RecipeIngredientInline]
-    readonly_fields = ("total_price",)
+    readonly_fields = ("total_price", "total_calories")
     fieldsets = (
         (
             None,
@@ -30,6 +30,7 @@ class RecipeAdmin(admin.ModelAdmin):
                     "title",
                     "cooking_instructions",
                     "total_price",
+                    "total_calories",
                 )
             },
         ),
@@ -45,12 +46,13 @@ class IngredientAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "price_per_hundred_gram",
+        'calories_per_hundred_gram',
         "other_measurement_unit",
         "grams_per_unit",
-        "price_per_unit",
     )
     search_fields = ("name",)
     ordering = ("name",)
+    readonly_fields = ("price_per_unit",)
     fieldsets = (
         (
             None,
@@ -58,9 +60,10 @@ class IngredientAdmin(admin.ModelAdmin):
                 "fields": (
                     "name",
                     "price_per_hundred_gram",
+                    "calories_per_hundred_gram",
                     "other_measurement_unit",
                     "grams_per_unit",
-                    "price_per_unit",
+                    'price_per_unit',
                 )
             },
         ),

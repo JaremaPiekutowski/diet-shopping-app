@@ -92,23 +92,44 @@ class Command(BaseCommand):
         recipe, created = Recipe.objects.get_or_create(
             title=recipe_data["name"],
             defaults={
-                "meal": self.get_meal(recipe_data["meal_number"]),
-                "cooking_instructions": recipe_data["cooking_instructions"],
-            },
+                'meal': self.get_meal(recipe_data["meal_number"]),
+                'cooking_instructions': recipe_data["cooking_instructions"]
+                }
         )
+        if not created:
+            # Update meal and cooking_instructions if recipe already exists
+            recipe.meal = self.get_meal(recipe_data["meal_number"])
+            recipe.cooking_instructions = recipe_data["cooking_instructions"]
+            recipe.save()
 
         for ingredient_data in recipe_data["ingredients"]:
             units = re.findall(r"\b\w+\b", ingredient_data.get("unit", ""))
             other_measurement_unit = units[-1] if units else ""
             nominative_unit = self.to_nominative(other_measurement_unit)
-            ingredient, _ = Ingredient.objects.get_or_create(
-                name=ingredient_data["name"],
-                other_measurement_unit=nominative_unit,
-            )
 
-            RecipeIngredient.objects.create(
+            # Check if ingredient exists
+            calories = ingredient_data.get("calories")
+            if calories is None:
+                calories = 0
+            grams = ingredient_data.get("grams")
+            if grams is None:
+                grams = 0
+            ingredient, created = Ingredient.objects.get_or_create(
+                name=ingredient_data["name"],
+                defaults={
+                    'calories_per_hundred_gram': calories * (100 / grams),
+                    'other_measurement_unit': nominative_unit
+                    }
+            )
+            if not created:
+                # Update existing ingredient
+                ingredient.calories_per_hundred_gram = calories * (100 / grams)
+                ingredient.other_measurement_unit = nominative_unit
+                ingredient.save()
+
+            # Create RecipeIngredient
+            RecipeIngredient.objects.get_or_create(
                 recipe=recipe,
                 ingredient=ingredient,
-                quantity_grams=ingredient_data["grams"],
-                calories=ingredient_data["calories"],
+                defaults={'quantity_grams': ingredient_data["grams"]}
             )
