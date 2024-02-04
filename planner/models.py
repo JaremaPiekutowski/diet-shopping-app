@@ -77,11 +77,11 @@ class Plan(models.Model):
 
     @property
     def date_start(self):
-        return self.days.all().order_by("date").first().date
+        return self.planday_set.all().order_by("day__date").first().day
 
     @property
     def date_end(self):
-        return self.days.all().order_by("date").last().date
+        return self.planday_set.all().order_by("day__date").last().day
 
     # # TODO doesn't work
     # def __str__(self):

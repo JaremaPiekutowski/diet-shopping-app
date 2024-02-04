@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "15e2ed0b9b9c4b74d3a0518b5a9a51cfc9fdaa4947f62e990c2bc00c0dbc2507"
+            "sha256": "de342765a87454f655e31775aa4aabd7c3e2fe9dba01f86ccb9260f6221f8eff"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -437,6 +437,14 @@
             ],
             "version": "==2.0.0"
         },
+        "python-docx": {
+            "hashes": [
+                "sha256:5829b722141cf1ab79aedf0c34d9fe9924b29764584c0f2164eb2b02dcdf17c9",
+                "sha256:bac9773278098a1ddc43a52d84e22f5909c4a3080a624530b3ecb3771b07c6cd"
+            ],
+            "index": "pypi",
+            "version": "==1.1.0"
+        },
         "pytz": {
             "hashes": [
                 "sha256:2a29735ea9c18baf14b448846bde5a48030ed267578472d8955cd0e7443a9812",
@@ -459,6 +467,14 @@
             ],
             "markers": "python_version >= '3.5'",
             "version": "==0.4.4"
+        },
+        "typing-extensions": {
+            "hashes": [
+                "sha256:23478f88c37f27d76ac8aee6c905017a143b0b1b886c3c9f66bc2fd94f9f5783",
+                "sha256:af72aea155e91adfc61c3ae9e0e342dbc0cba726d6cba4b6c72c1f34e47291cd"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==4.9.0"
         },
         "tzdata": {
             "hashes": [

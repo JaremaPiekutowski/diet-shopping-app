@@ -14,15 +14,15 @@ class DayAdmin(admin.ModelAdmin):
     Admin interface for the Day model
     """
 
-    list_display = ("date_formatted",)
+    list_display = ("date", "date_formatted")
     ordering = ("date",)
-    readonly_fields = ("total_price", "total_calories", "date_formatted")
+    readonly_fields = ("date_formatted", "total_price", "total_calories")
     fieldsets = (
         (
             None,
             {
                 "fields": (
-                    "date_formatted",
+                    "date",
                     "breakfast",
                     "lunch",
                     "dinner",
@@ -40,14 +40,15 @@ class PlanAdmin(admin.ModelAdmin):
     Admin interface for the Plan model
     """
 
-    list_display = ("date_start", "date_end",)
+    list_display = ("id", "date_start", "date_end",)
     inlines = [PlanDayInline]
-    readonly_fields = ("date_start", "date_end",)
+    readonly_fields = ("id", "date_start", "date_end",)
     fieldsets = (
         (
             None,
             {
                 "fields": (
+                    "id",
                     "date_start",
                     "date_end",
                 )

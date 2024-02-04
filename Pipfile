@@ -8,6 +8,7 @@ django = "*"
 djangorestframework = "*"
 pdfquery = "*"
 black = "*"
+python-docx = "*"
 
 [dev-packages]
 flake8 = "*"
