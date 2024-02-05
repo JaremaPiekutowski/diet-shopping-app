@@ -45,6 +45,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
     list_display = (
         "name",
+        "category",
         "price_per_hundred_gram",
         "calories_per_hundred_gram",
         "other_measurement_unit",
@@ -59,6 +60,7 @@ class IngredientAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "name",
+                    "category",
                     "price_per_hundred_gram",
                     "calories_per_hundred_gram",
                     "other_measurement_unit",

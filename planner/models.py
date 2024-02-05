@@ -44,7 +44,8 @@ class Day(models.Model):
 
     @property
     def date_formatted(self):
-        return self.date.strftime("%d %B %Y, %A")
+        # Return date in format: 31.01.2021, Sunday
+        return f"{self.date.strftime('%d.%m.%Y')}, {self.date.strftime('%A')}"
 
     @property
     def total_price(self):
@@ -64,7 +65,7 @@ class Day(models.Model):
         return total_calories
 
     def __str__(self):
-        return f"Menu for {self.date_formatted}"
+        return f"{self.date_formatted}"
 
 
 class Plan(models.Model):
@@ -84,9 +85,8 @@ class Plan(models.Model):
     def date_end(self):
         return self.planday_set.all().order_by("day__date").last().day
 
-    # # TODO doesn't work
-    # def __str__(self):
-    #     return f"{self.date_start} - {self.date_end}"
+    def __str__(self):
+        return f"{self.date_start} - {self.date_end}"
 
 
 class PlanDay(models.Model):
@@ -96,6 +96,9 @@ class PlanDay(models.Model):
 
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
     day = models.ForeignKey(Day, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("plan", "day")
 
     def __str__(self):
         return f"{self.plan.id} - {self.day.date_formatted}"

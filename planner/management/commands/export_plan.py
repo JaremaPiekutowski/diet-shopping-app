@@ -22,8 +22,8 @@ class Command(BaseCommand):
     def get_plan_data(self, plan):
         plandays = plan.planday_set.all()
         plan_data = {
-            "date_start": plan.date_start,
-            "date_end": plan.date_end,
+            "date_start": plan.date_start.date,
+            "date_end": plan.date_end.date,
             "days": [
                 {
                     "date": planday.day.date,
@@ -54,6 +54,13 @@ class Command(BaseCommand):
             ],
         }
         return plan_data
+
+    def get_date_start_end(self, plan):
+        # Use re to extract everything before "," from the date string
+        plan_data = self.get_plan_data(plan)
+        return plan_data["date_start"].strftime("%d.%m.%Y"), plan_data[
+            "date_end"
+        ].strftime("%d.%m.%Y")
 
     def get_shopping_list_data(self, plan):
         shopping_list = {}
@@ -111,39 +118,53 @@ class Command(BaseCommand):
         return shopping_list
 
     def export_plan(self, plan):
+        date_start, date_end = self.get_date_start_end(plan)
         plan_data = self.get_plan_data(plan)
         doc = Document()
-        doc.add_heading(
-            f"Diet plan for {plan_data['date_start']} - {plan_data['date_end']}", 0
-        )
+        doc.add_heading(f"Diet plan for {date_start} - {date_end}", 0)
         for day in plan_data["days"]:
             doc.add_heading(day["date"].strftime("%d %B %Y, %A"), level=1)
+            doc.add_paragraph()
             for meal, title in day["meals"].items():
                 doc.add_paragraph(f"{meal.capitalize()}: {title}")
-        doc.save(
-            f"exported_data/plan_{plan_data['date_start']}_{plan_data['date_end']}.docx"
+        filename = (
+            f"exported_data/plan_{date_start}_{date_end}.docx"
+            if date_start != date_end
+            else f"exported_data/plan_{date_start}.docx"
         )
+        doc.save(filename)
 
     def export_shopping_list(self, plan):
+        date_start, date_end = self.get_date_start_end(plan)
         shopping_list = self.get_shopping_list_data(plan)
         shopping_doc = Document()
-        shopping_doc.add_heading("Lista Zakupów", 0)
+        shopping_doc.add_heading("Lista zakupów", 0)
+        total_list_price = 0
 
         for category, ingredients in shopping_list.items():
-            shopping_doc.add_heading(category, level=1)
+            shopping_doc.add_heading(category.capitalize(), level=1)
             for ingredient in ingredients:
                 shopping_doc.add_paragraph(
                     (
                         f'{ingredient["name"]} - '
                         f'{ingredient["total_grams"]} g - '
-                        f'Cost: {ingredient["total_price"]:.2f} PLN'
+                        f'cena: {ingredient["total_price"]:.2f} PLN'
                     ),
                     style="List Bullet",
                 )
-
-        shopping_doc.save(
-            f"exported_data/shopping_{plan.date_start}_{plan.date_end}.docx"
+                total_list_price += ingredient["total_price"]
+        shopping_doc.add_paragraph()
+        shopping_doc.add_heading("KOSZT ZAKUPÓW", 1)
+        shopping_doc.add_paragraph()
+        shopping_doc.add_paragraph(
+            f"Całkowity koszt zakupów: {total_list_price:.2f} PLN"
         )
+        filename = (
+            f"exported_data/shopping_list_{date_start}_{date_end}.docx"
+            if date_start != date_end
+            else f"exported_data/shopping_list_{date_start}.docx"
+        )
+        shopping_doc.save(filename)
 
     def do_export(self, plan):
         self.export_plan(plan)

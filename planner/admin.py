@@ -14,7 +14,7 @@ class DayAdmin(admin.ModelAdmin):
     Admin interface for the Day model
     """
 
-    list_display = ("date", "date_formatted")
+    list_display = ("date_formatted",)
     ordering = ("date",)
     readonly_fields = ("date_formatted", "total_price", "total_calories")
     fieldsets = (
