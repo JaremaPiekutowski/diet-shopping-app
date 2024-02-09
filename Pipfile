@@ -9,9 +9,12 @@ djangorestframework = "*"
 pdfquery = "*"
 black = "*"
 python-docx = "*"
+pandas = "*"
+openpyxl = "*"
 
 [dev-packages]
 flake8 = "*"
+ipykernel = "*"
 
 [requires]
 python_version = "3.11"

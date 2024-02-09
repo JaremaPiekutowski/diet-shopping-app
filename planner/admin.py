@@ -41,13 +41,11 @@ class PlanAdmin(admin.ModelAdmin):
     """
 
     list_display = (
-        "id",
         "date_start",
         "date_end",
     )
     inlines = [PlanDayInline]
     readonly_fields = (
-        "id",
         "date_start",
         "date_end",
     )
@@ -56,7 +54,6 @@ class PlanAdmin(admin.ModelAdmin):
             None,
             {
                 "fields": (
-                    "id",
                     "date_start",
                     "date_end",
                 )

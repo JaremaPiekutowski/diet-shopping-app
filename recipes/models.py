@@ -72,7 +72,7 @@ class Recipe(models.Model):
         return round(total_calories)
 
     def __str__(self):
-        return f"{self.title}"
+        return f"({self.meal}){self.title}"
 
 
 class Ingredient(models.Model):
