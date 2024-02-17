@@ -5,22 +5,22 @@ from recipes.models import Ingredient
 
 
 class Command(BaseCommand):
-    help = "Imports ingredient prices from excel"
+    help = "Imports ingredient categories from excel"
 
     def handle(self, *args, **kwargs):
         # Load the updated Excel file
-        df = pd.read_excel("data_extraction/ingredient_prices.xlsx")
+        df = pd.read_excel("data_extraction/categories.xlsx")
 
         # Update the ingredients with prices
         for index, row in df.iterrows():
             ingredient_name = row["name"]
-            price = row["price"]
-            print("Updating price for", ingredient_name, "to", price)
+            category = row["category"]
+            print("Updating category for", ingredient_name, "to", category)
             # Find the ingredient and update its price
             try:
                 ingredient = Ingredient.objects.get(name=ingredient_name)
             except Ingredient.DoesNotExist:
                 print("Ingredient not found:", ingredient_name)
                 continue
-            ingredient.price_per_hundred_gram = price
-            ingredient.save(update_fields=["price_per_hundred_gram"])
+            ingredient.category = category
+            ingredient.save(update_fields=["category"])

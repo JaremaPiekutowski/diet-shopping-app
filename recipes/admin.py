@@ -80,10 +80,10 @@ class IngredientAdmin(admin.ModelAdmin):
     def formatted_calories(self, obj):
         return round(obj.calories_per_hundred_gram)
 
-    formatted_price.short_description = 'Price'
-    formatted_price.admin_order_field = 'price_per_hundred_gram'
-    formatted_calories.short_description = 'Calories'
-    formatted_calories.admin_order_field = 'calories_per_hundred_gram'
+    formatted_price.short_description = "Price"
+    formatted_price.admin_order_field = "price_per_hundred_gram"
+    formatted_calories.short_description = "Calories"
+    formatted_calories.admin_order_field = "calories_per_hundred_gram"
 
 
 # Register RecipeIngredient model

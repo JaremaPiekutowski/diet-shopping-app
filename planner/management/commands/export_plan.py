@@ -28,26 +28,86 @@ class Command(BaseCommand):
                 {
                     "date": planday.day.date,
                     "meals": {
-                        "breakfast": (
-                            planday.day.breakfast.title
-                            if planday.day.breakfast
-                            else "No breakfast planned"
-                        ),
-                        "lunch": (
-                            planday.day.lunch.title
-                            if planday.day.lunch
-                            else "No lunch planned"
-                        ),
-                        "dinner": (
-                            planday.day.dinner.title
-                            if planday.day.dinner
-                            else "No dinner planned"
-                        ),
-                        "supper": (
-                            planday.day.supper.title
-                            if planday.day.supper
-                            else "No supper planned"
-                        ),
+                        "breakfast": {
+                            "title": (
+                                planday.day.breakfast.title
+                                if planday.day.breakfast
+                                else "No breakfast planned"
+                            ),
+                            "ingredients": (
+                                [
+                                    ingredient
+                                    for ingredient in planday.day.breakfast.ingredients
+                                ]
+                                if planday.day.breakfast
+                                else ""
+                            ),
+                            "cooking_instructions": (
+                                planday.day.breakfast.cooking_instructions
+                                if planday.day.breakfast
+                                else ""
+                            ),
+                        },
+                        "lunch": {
+                            "title": (
+                                planday.day.lunch.title
+                                if planday.day.lunch
+                                else "No lunch planned"
+                            ),
+                            "ingredients": (
+                                [
+                                    ingredient
+                                    for ingredient in planday.day.lunch.ingredients
+                                ]
+                                if planday.day.lunch
+                                else ""
+                            ),
+                            "cooking_instructions": (
+                                planday.day.lunch.cooking_instructions
+                                if planday.day.lunch
+                                else ""
+                            ),
+                        },
+                        "dinner": {
+                            "title": (
+                                planday.day.dinner.title
+                                if planday.day.dinner
+                                else "No dinner planned"
+                            ),
+                            "ingredients": (
+                                [
+                                    ingredient
+                                    for ingredient in planday.day.dinner.ingredients
+                                ]
+                                if planday.day.dinner
+                                else ""
+                            ),
+                            "cooking_instructions": (
+                                planday.day.dinner.cooking_instructions
+                                if planday.day.dinner
+                                else ""
+                            ),
+                        },
+                        "supper": {
+                            "title": (
+                                planday.day.supper.title
+                                if planday.day.supper
+                                else "No supper planned"
+                            ),
+                            "ingredients": (
+                                [
+                                    ingredient
+                                    for ingredient in planday.day.supper.ingredients
+                                ]
+                                if planday.day.supper
+                                else ""
+                            ),
+                            "cooking_instructions": (
+                                planday.day.supper.cooking_instructions
+                                if planday.day.supper
+                                else ""
+                            ),
+                        },
                     },
                 }
                 for planday in plandays
@@ -134,6 +194,28 @@ class Command(BaseCommand):
         )
         doc.save(filename)
 
+    def export_long_plan(self, plan):
+        date_start, date_end = self.get_date_start_end(plan)
+        plan_data = self.get_plan_data(plan)
+        doc = Document()
+        doc.add_heading(f"Recipes for {date_start} - {date_end}", 0)
+        for day in plan_data["days"]:
+            doc.add_heading(day["date"].strftime("%d %B %Y, %A"), level=1)
+            doc.add_paragraph()
+            for meal, recipe in day["meals"].items():
+                doc.add_heading(f"{meal.capitalize()}", level=2)
+                doc.add_paragraph(recipe["title"].upper())
+                for ingredient in recipe["ingredients"]:
+                    doc.add_paragraph(ingredient, style="List Bullet")
+                doc.add_paragraph(recipe["cooking_instructions"])
+                doc.add_paragraph()
+        filename = (
+            f"exported_data/recipes_{date_start}_{date_end}.docx"
+            if date_start != date_end
+            else f"exported_data/recipes_{date_start}.docx"
+        )
+        doc.save(filename)
+
     def export_shopping_list(self, plan):
         date_start, date_end = self.get_date_start_end(plan)
         shopping_list = self.get_shopping_list_data(plan)
@@ -168,5 +250,6 @@ class Command(BaseCommand):
 
     def do_export(self, plan):
         self.export_plan(plan)
+        self.export_long_plan(plan)
         self.export_shopping_list(plan)
         print("Export done")

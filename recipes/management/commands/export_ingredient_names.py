@@ -9,10 +9,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # Fetch all ingredient names
-        ingredients = Ingredient.objects.all().values_list('name', flat=True)
+        ingredients = Ingredient.objects.all().values_list("name", flat=True)
 
         # Create a DataFrame
-        df = pd.DataFrame(list(ingredients), columns=['name'])
+        df = pd.DataFrame(list(ingredients), columns=["name"])
 
         # Save to Excel
-        df.to_excel('data_extraction/ingredient_prices.xlsx', index=False)
+        df.to_excel("data_extraction/ingredient_prices.xlsx", index=False)

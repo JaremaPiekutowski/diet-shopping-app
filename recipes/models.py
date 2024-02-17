@@ -31,6 +31,7 @@ class IngredientCategory(models.TextChoices):
     MEAT = "meat", _("Meat")
     FISH = "fish", _("Fish")
     FLOUR = "flour", _("Flour")
+    TINNED = "tinned", _("Tinned")
     SPICES = "spices", _("Spices")
     OTHER = "other", _("Other")
 
@@ -70,6 +71,11 @@ class Recipe(models.Model):
             if ri.quantity_grams and ri.ingredient.calories_per_hundred_gram
         )
         return round(total_calories)
+
+    @property
+    def ingredients(self):
+        all_ingredients = self.recipeingredient_set.all()
+        return [f"{ri.ingredient} - {ri.quantity_grams} g" for ri in all_ingredients]
 
     def __str__(self):
         return f"({self.meal}){self.title}"
